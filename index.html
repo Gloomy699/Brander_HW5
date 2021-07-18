@@ -1,0 +1,37 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="stylesheet" href="./table/table.css">
+    <link rel="stylesheet" href="./table/table__single-border.css">
+    <link rel="stylesheet" href="./table/table__zebra-style.css">
+    <link rel="stylesheet" href="./table/table__image.css">
+    
+    <title>Document</title>
+</head>
+<body>
+    <label for="searchName">Search by name</label>
+    <input type="text" id="searchName" placeholder="Please enter first letter"/>
+    
+    <div>
+        <p id = "captured"> </p>
+        <p id = "famale"> </p>
+    </div>
+
+    <table class = "table table__zebra-style table__single-border">
+        <tr>
+            <th>Name</th>
+            <th>Sex</th>
+            <th>Nationality</th>
+            <th>Race</th>
+            <th>Status</th>
+            <th>Photo</th>
+        </tr>
+        <tbody id = "tbody">
+        </tbody>
+    </table>
+    <script type="text/javascript" src="./index.js"></script>
+    </body>
+</html>

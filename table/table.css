@@ -1,0 +1,18 @@
+.table {
+  font-family: arial, sans-serif;
+  border-collapse: separate;
+  width: 100%;
+  margin-top: 20px;
+}
+
+.table td {
+  border: 1px solid black;
+  text-align: left;
+  padding: 8px;
+}
+
+.table th {
+  border: 1px solid black;
+  text-align: left;
+  padding: 8px;
+}
