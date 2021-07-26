@@ -1,10 +1,11 @@
-let newData = []
+let itemsStore = []
 
 let filterByTitleValue = ''
+let filterByNationalityValue = ''
 
-const input = document.getElementById('searchName')
+const filterByTitleInput = document.getElementById('searchName')
+const filterByNationalitySelect = document.getElementById('searchNationality')
 const tbody = document.getElementById('tbody')
-const select = document.getElementById('sortBy')
 let sortField = ''
 let sortDirection = false
 
@@ -15,29 +16,23 @@ Array.from(document.getElementsByClassName('sortByButton')).forEach((sortFieldEl
       sortDirection = !sortDirection
     }
     sortField = field
-    sortTable()
+    draw()
   })
 })
 
-select.addEventListener('change', sortTable)
-input.addEventListener('keyup', (e) => {
+filterByTitleInput.addEventListener('keyup', (e) => {
   filterByTitleValue = e.target.value.toLocaleUpperCase()
-  filteringTable()
+  draw()
 })
 
-fetch('fbi.json')
-  .then((response) => {
-    return response.json()
-  })
-  .then((data) => {
-    newData = data.items
-    fillTable(newData)
-    fillStatistic(newData)
-  })
+filterByNationalitySelect.addEventListener('change', (e) => {
+  filterByNationalityValue = e.target.value
+  draw()
+})
 
-let fillTable = (newData) => {
+let fillTable = (items) => {
   tbody.innerHTML = ''
-  newData.forEach(item => {
+  items.forEach(item => {
     let tr = document.createElement('tr')
     tr.innerHTML = ` 
         <td id="name">${item.title}</td>
@@ -53,16 +48,16 @@ let fillTable = (newData) => {
   })
 }
 
-let fillStatistic = (newData) => {
-  const qtyCaptured = newData
+let fillStatistic = (items) => {
+  const qtyCaptured = items
     .filter(item => item.status === 'captured')
     .length
 
-  const qtyFemale = newData
+  const qtyFemale = items
     .filter(item => item.sex === 'Female')
     .length
 
-  const qtyByNationality = newData
+  const qtyByNationality = items
     .reduce((total, item) => {
       total[item.nationality] = total[item.nationality] ? total[item.nationality]++ : 1
       return total
@@ -79,9 +74,8 @@ let fillStatistic = (newData) => {
 }
 
 function sortTable () {
-  // let sortField = select.options[select.selectedIndex].value
   const dir = sortDirection ? 1 : -1
-  newData.sort(({[sortField]: aField}, {[sortField]: bField}) => {
+  itemsStore.sort(({[sortField]: aField}, {[sortField]: bField}) => {
     const a = aField || ''
     const b = bField || ''
     if (a > b) {
@@ -92,14 +86,46 @@ function sortTable () {
       return 0
     }
   })
-  fillTable(newData)
 }
 
 function filteringTable () {
-  fillTable(newData.filter((item) => {
+  fillTable(itemsStore.filter((item) => {
+    let status = true
     if (filterByTitleValue) {
-      return item.title.toLocaleUpperCase().includes(filterByTitleValue)
+      status = item.title.toLocaleUpperCase().includes(filterByTitleValue)
     }
-    return true
+    if (filterByNationalityValue) {
+      status &&= item.nationality === filterByNationalityValue
+    }
+    return status
   }))
 }
+
+function fillOptions (items) {
+  const byNationality = items
+    .reduce((total, item) => {
+      if (item.nationality) {
+        total[item.nationality] = item.nationality
+      }
+      return total
+    }, {'': ''})
+  filterByNationalitySelect.innerHTML = Object.keys(byNationality)
+    .map((k) => `<option value="${k}">${k}</option>`)
+    .join('\n')
+}
+
+function draw() {
+  sortTable()
+  filteringTable()
+}
+
+fetch('fbi.json')
+  .then((response) => {
+    return response.json()
+  })
+  .then((data) => {
+    itemsStore = data.items
+    fillOptions(itemsStore)
+    fillStatistic(itemsStore)
+    draw()
+  })
