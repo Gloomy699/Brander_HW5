@@ -1,89 +1,105 @@
-let newData = [];
-let input = document.getElementById("searchName");
-let tbody = document.getElementById("tbody");
-let select = document.getElementById("sortBy");
-let sortField = select.options[select.selectedIndex].value;
+let newData = []
 
-fetch("fbi.json")
-    .then((response) => {
-        return response.json();
-    })
-    .then((data) => {
-        newData.push(...data.items);
-        // console.log(newData);
-        // newData.sort((a, b) => a.title < b.title ? - 1 : Number(a.title > b.title));
-        // console.log(newData);
-        fillTable(newData);
-        fillStatistic(newData);
-        select.addEventListener("change",  sortTable);
-    });
+let filterByTitleValue = ''
 
-let fillTable = (newData) => {newData.forEach(item => {
-    let tr = document.createElement("tr");
+const input = document.getElementById('searchName')
+const tbody = document.getElementById('tbody')
+const select = document.getElementById('sortBy')
+let sortField = ''
+let sortDirection = false
+
+Array.from(document.getElementsByClassName('sortByButton')).forEach((sortFieldEl) => {
+  const field = sortFieldEl.value
+  sortFieldEl.addEventListener('click', (e) => {
+    if (sortField === field) {
+      sortDirection = !sortDirection
+    }
+    sortField = field
+    sortTable()
+  })
+})
+
+select.addEventListener('change', sortTable)
+input.addEventListener('keyup', (e) => {
+  filterByTitleValue = e.target.value.toLocaleUpperCase()
+  filteringTable()
+})
+
+fetch('fbi.json')
+  .then((response) => {
+    return response.json()
+  })
+  .then((data) => {
+    newData = data.items
+    fillTable(newData)
+    fillStatistic(newData)
+  })
+
+let fillTable = (newData) => {
+  tbody.innerHTML = ''
+  newData.forEach(item => {
+    let tr = document.createElement('tr')
     tr.innerHTML = ` 
-        <td id="name">${item.title? item.title : "no data"}</td>
-        <td>${item.sex ? item.sex : "no data"}</td>
-        <td>${item.nationality ? item.nationality : "no data"}</td>
-        <td>${item.race ? item.race : "no data"}</td>
-        <td>${item.status ? item.status : "no data"}</td>
+        <td id="name">${item.title}</td>
+        <td>${item.sex ? item.sex : 'na'}</td>
+        <td>${item.nationality ? item.nationality : 'na'}</td>
+        <td>${item.race ? item.race : 'na'}</td>
+        <td>${item.status ? item.status : 'na'}</td>
         <td>
-            <img src=${item.images[0].original ? item.images[0].original : "https://www.fbi.gov/wanted/seeking-info/royce-perry-sr/@@images/image/large"
-            }>
-        </td>`;
-    tbody.appendChild(tr);
-})};
+            <img src=${item.images[0].original ? item.images[0].original : 'https://www.fbi.gov/wanted/seeking-info/royce-perry-sr/@@images/image/large'
+    }>
+        </td>`
+    tbody.appendChild(tr)
+  })
+}
 
 let fillStatistic = (newData) => {
-    const qtyCatured = newData
-        .filter(item => item.status === "captured")
-        .reduce((total, item) => ++total, 0);  //return NAN without 0 in reduce
-        
-    const qtyFemale = newData
-        .filter(item => item.sex === "Female")
-        .reduce((total, item) => ++total, 0);  //return NAN without 0 in reduce
+  const qtyCaptured = newData
+    .filter(item => item.status === 'captured')
+    .length
 
-    let captured = document.getElementById("captured");
-    let female = document.getElementById("female");
-    captured.innerText = `Total captured: ${qtyCatured}`
-    female.innerText = `Total female: ${qtyFemale}`
-}
- 
-function sortTable (newData){
-    let sortField = select.options[select.selectedIndex].value;
-    for(let i = tbody.rows.length - 1; i >= 0; i--) {
-        tbody.deleteRow(i);
-    }
-    sortField == "name"? sortField = "title": null;
-    console.log(sortField);
-    newData.sort((a, b) => a.sortField[0] < b.sortField[0] ? - 1 : Number(a.sortField[0] > b.sortField[0]));
-    fillTable(newData);
-}
+  const qtyFemale = newData
+    .filter(item => item.sex === 'Female')
+    .length
 
-if (input) {
-    input.addEventListener('keyup', filteringTable);
+  const qtyByNationality = newData
+    .reduce((total, item) => {
+      total[item.nationality] = total[item.nationality] ? total[item.nationality]++ : 1
+      return total
+    }, {})
+  const qtyByNationalityAsText = Object.entries(qtyByNationality)
+    .map(([k, v]) => k.padEnd(25) + ':' + v)
+    .join('\n')
+
+  const statistics = document.getElementById('statistics')
+  statistics.innerText = `
+  Total captured: ${qtyCaptured}
+  Total female: ${qtyFemale}
+  ${qtyByNationalityAsText}`
 }
 
-
-function filteringTable() {
-    var td, i,
-        filter = input.value.toUpperCase(),
-        table = document.querySelectorAll("table"),
-        tr = [];
-    
-    for(i = 0; i < table.length; i++) {
-        for (var a = 0; a < table[i].rows.length; a++) {
-            tr.push(table[i].rows[a])
-        }
+function sortTable () {
+  // let sortField = select.options[select.selectedIndex].value
+  const dir = sortDirection ? 1 : -1
+  newData.sort(({[sortField]: aField}, {[sortField]: bField}) => {
+    const a = aField || ''
+    const b = bField || ''
+    if (a > b) {
+      return dir
+    } else if (a < b) {
+      return -dir
+    } else if (a === b) {
+      return 0
     }
+  })
+  fillTable(newData)
+}
 
-    for (i = 0; i < tr.length; i++) {
-        td = tr[i].getElementsByTagName("td")[0] || tr[i].getElementsByTagName("th")[0];
-        if (td) {
-            if (td.innerHTML.toUpperCase().indexOf(filter) > -1) {
-                tr[i].style.display = "";
-            } else {
-                tr[i].style.display = "none";
-            }
-        }
+function filteringTable () {
+  fillTable(newData.filter((item) => {
+    if (filterByTitleValue) {
+      return item.title.toLocaleUpperCase().includes(filterByTitleValue)
     }
+    return true
+  }))
 }

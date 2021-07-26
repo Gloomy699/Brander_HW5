@@ -8,41 +8,42 @@
     <link rel="stylesheet" href="./table/table__single-border.css">
     <link rel="stylesheet" href="./table/table_zebra-style.css">
     <link rel="stylesheet" href="./table/table__image.css">
-    
+
     <title>Document</title>
 </head>
 <body>
-    <form action=""></form>
-        <label for="searchName">Search by name</label>
-        <input type="text" id="searchName" placeholder="Please enter first letter"/>
 
-        <div id = "sort">
-            <label for="sortBy">Sort table by:</label>
-            <select name="sortBy" id="sortBy"> 
-            <option value="name">Name</option>
-            <option value="status">Status</option>
-            <option value="nationality">Nationality</option>
-            </select>
-        </div>
-    </form>
+<div>
+    <p id="statistics"></p>
+</div>
 
-    <div>
-        <p id = "captured"> </p>
-        <p id = "female"> </p>
-    </div>
-
-    <table class = "table table_zebra-style table__single-border">
-        <tr>
-            <th>Name</th>
-            <th>Sex</th>
-            <th>Nationality</th>
-            <th>Race</th>
-            <th>Status</th>
-            <th>Photo</th>
-        </tr>
-        <tbody id = "tbody">
-        </tbody>
-    </table>
-    <script type="text/javascript" src="./index.js"></script>
-    </body>
+<table class="table table_zebra-style table__single-border">
+    <thead>
+    <tr>
+        <th>
+            <button value="title" class="sortByButton">Name</button><br>
+            <label>
+            <input type="text" id="searchName" placeholder="Please enter first letter"/>
+            </label>
+        </th>
+        <th>
+            <button value="sex" class="sortByButton">Sex</button><br>
+        </th>
+        <th>
+            <button value="nationality" class="sortByButton">Nationality</button><br>
+        </th>
+        <th>
+            <button value="race" class="sortByButton">Race</button><br>
+        </th>
+        <th>
+            <button value="status" class="sortByButton">Status</button><br>
+        </th>
+        <th>Photo</th>
+    </tr>
+    </thead>
+    <tbody id="tbody">
+    </tbody>
+</table>
+<script type="text/javascript" src="./index.js"></script>
+</body>
 </html>
